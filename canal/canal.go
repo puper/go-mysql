@@ -243,6 +243,9 @@ func (c *Canal) checkBinlogRowFormat() error {
 }
 
 func (c *Canal) prepareSyncer() error {
+	if c.syncer != nil {
+		c.syncer.Close()
+	}
 	c.syncer = replication.NewBinlogSyncer(c.cfg.ServerID, c.cfg.Flavor)
 
 	seps := strings.Split(c.cfg.Addr, ":")
