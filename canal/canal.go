@@ -1,6 +1,7 @@
 package canal
 
 import (
+	"time"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -140,14 +141,15 @@ func (c *Canal) run() error {
 	}
 
 	close(c.dumpDoneCh)
-
-	if err := c.startSyncBinlog(); err != nil {
-		if !c.isClosed() {
-			log.Errorf("canal start sync binlog err: %v", err)
+	for !c.isClosed() {
+		if err := c.startSyncBinlog(); err != nil {
+			if !c.isClosed() {
+				log.Errorf("canal start sync binlog err: %v", err)
+				time.Sleep(3 * time.Second)
+				c.prepareSyncer()
+			}
 		}
-		return errors.Trace(err)
 	}
-
 	return nil
 }
 
